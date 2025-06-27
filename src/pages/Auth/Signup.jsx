@@ -10,7 +10,7 @@ import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
 import axiosInst from "../../utils/axios";
 import { API_ENDPOINT } from "../../utils/api";
 import { validateEmail } from "../../utils/helper";
-import uploadImage from "../../utils/uploadImage";
+import { uploadImage } from "../../utils/uploadImage";
 
 // Context
 import { UserContext } from "../../context/userContext";
@@ -19,7 +19,8 @@ const Signup = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setpassword] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
@@ -42,6 +43,11 @@ const Signup = () => {
 
     if (!password) {
       setError("Please enter the password");
+      return;
+    }
+
+    if (!confirmPassword || confirmPassword != password) {
+      setError("Please verify the password");
       return;
     }
 
@@ -104,9 +110,16 @@ const Signup = () => {
             <div className="col-span-2">
               <Input
                 value={password}
-                onChange={({ target }) => setpassword(target.value)}
+                onChange={({ target }) => setPassword(target.value)}
                 label="Password"
                 placeholder="Min 8 Characters"
+                type="password"
+              />
+              <Input
+                value={confirmPassword}
+                onChange={({ target }) => setConfirmPassword(target.value)}
+                label="Confirm Password"
+                placeholder="Password"
                 type="password"
               />
             </div>
