@@ -34,51 +34,57 @@ const User = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    let profileImageUrl = "";
 
-    if (email) {
-      if (!validateEmail(email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
+    if (email && !validateEmail(email)) {
+      return setError("Please enter a valid email address");
     }
 
-    if (password && confirmPassword) {
-      if (password != confirmPassword) {
-        setError("Please verify the password");
-        return;
-      }
+    if ((password || confirmPassword) && password !== confirmPassword) {
+      return setError("Passwords do not match");
     }
 
-    setError("");
+    setError(null);
+
+    let profileImageUrl = user?.profileImageUrl || "";
 
     try {
-      if (profilePic) {
+      if (profilePic && profilePic !== user?.profileImageUrl) {
         const imgUpdateRes = await updateImage(profilePic);
         profileImageUrl = imgUpdateRes.imageUrl || "";
       }
 
-      const response = await axiosInst.put(API_ENDPOINT.AUTH.UPDATE_USER, {
-        name,
-        email,
-        password,
-        profileImageUrl,
-      });
+      const payload = {};
+      if (name && name !== user?.name) payload.name = name;
+      if (email && email !== user?.email) payload.email = email;
+      if (password) payload.password = password;
+      if (profileImageUrl && profileImageUrl !== user?.profileImageUrl) {
+        payload.profileImageUrl = profileImageUrl;
+      }
 
-      const { token, user } = response.data;
+      const response = await axiosInst.put(
+        API_ENDPOINT.AUTH.UPDATE_USER,
+        payload
+      );
+      const { token, user: updatedUser } = response.data;
 
       if (token) {
         localStorage.setItem("token", token);
-        updateUser(user);
+        updateUser(updatedUser);
         navigate("/dashboard");
       }
     } catch (error) {
-      if (error.response && error.response.data.message) {
+      console.log("Update error:", error.response?.data || error.message);
+      if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
         setError("Something Went Wrong, Try Again");
       }
     }
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    console.log("Delete Account Clicked");
   };
 
   return (
@@ -129,9 +135,14 @@ const User = () => {
 
             {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-            <button type="submit" className="btn-primary">
-              Update Details
-            </button>
+            <div className="flex gap-2">
+              <button type="submit" className="btn-primary">
+                Update Details
+              </button>
+              <button onClick={handleDelete} className="btn-secondary">
+                Delete Account
+              </button>
+            </div>
           </form>
         </div>
       </div>
