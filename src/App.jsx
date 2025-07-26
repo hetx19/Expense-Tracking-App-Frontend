@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 
 // Pages
 import SignIn from "./pages/Auth/Signin";
@@ -19,18 +20,57 @@ import Expense from "./pages/Dashboard/Expense";
 import UserProvider from "./context/userContext";
 
 const App = () => {
+  const [progress, setProgress] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+
   return (
     <UserProvider>
       <div>
+        <LoadingBar
+          height={3}
+          progress={progress}
+          color="#875cf5"
+          onLoaderFinished={() => setProgress(0)}
+        />
         <Router>
           <Routes>
             <Route path="/" element={<Root />} />
-            <Route path="/signin" exact element={<SignIn />} />
-            <Route path="/signup" exact element={<SignUp />} />
+            <Route
+              path="/signin"
+              exact
+              element={
+                <SignIn
+                  loading={loading}
+                  setProgress={setProgress}
+                  setLoading={setLoading}
+                />
+              }
+            />
+            <Route
+              path="/signup"
+              exact
+              element={
+                <SignUp
+                  loading={loading}
+                  setLoading={setLoading}
+                  setProgress={setProgress}
+                />
+              }
+            />
             <Route path="/dashboard" exact element={<Home />} />
             <Route path="/income" exact element={<Income />} />
             <Route path="/expense" exact element={<Expense />} />
-            <Route path="/user" exact element={<User />} />
+            <Route
+              path="/user"
+              exact
+              element={
+                <User
+                  loading={loading}
+                  setLoading={setLoading}
+                  setProgress={setProgress}
+                />
+              }
+            />
           </Routes>
         </Router>
       </div>
