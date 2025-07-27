@@ -40,5 +40,6 @@ export const Authhooks = () => {
     return () => {
       userIsMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateUser, clearUser, navigate]);
 };

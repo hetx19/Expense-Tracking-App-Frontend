@@ -21,6 +21,7 @@ const RecentIncomeChart = ({ data, totalIncome }) => {
     prepareChartData();
 
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (
