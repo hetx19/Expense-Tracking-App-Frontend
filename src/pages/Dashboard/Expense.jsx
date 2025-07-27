@@ -127,6 +127,7 @@ const Expense = () => {
   useEffect(() => {
     fetchExpenseDetails();
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
