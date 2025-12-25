@@ -11,6 +11,7 @@ import {
 import SignIn from "./pages/Auth/Signin";
 import SignUp from "./pages/Auth/Signup";
 import Home from "./pages/Dashboard/Home";
+import User from "./pages/Dashboard/User";
 import Income from "./pages/Dashboard/Income";
 import Expense from "./pages/Dashboard/Expense";
 
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="/dashboard" exact element={<Home />} />
             <Route path="/income" exact element={<Income />} />
             <Route path="/expense" exact element={<Expense />} />
+            <Route path="/user" exact element={<User />} />
           </Routes>
         </Router>
       </div>

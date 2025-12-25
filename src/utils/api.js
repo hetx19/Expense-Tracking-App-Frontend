@@ -24,5 +24,6 @@ export const API_ENDPOINT = {
   },
   IMAGE: {
     UPLOAD_IMAGE: "/api/auth/upload-image",
+    UPDATE_IMAGE: "/api/auth/update-image",
   },
 };

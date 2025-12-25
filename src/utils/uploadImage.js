@@ -1,7 +1,7 @@
 import { API_ENDPOINT } from "./api";
 import axiosInst from "./axios";
 
-const uploadImage = async (imageFile) => {
+export const uploadImage = async (imageFile) => {
   const formData = new FormData();
   formData.append("image", imageFile);
 
@@ -20,4 +20,21 @@ const uploadImage = async (imageFile) => {
   }
 };
 
-export default uploadImage;
+export const updateImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  try {
+    const responce = await axiosInst.put(
+      API_ENDPOINT.IMAGE.UPDATE_IMAGE,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return responce.data;
+  } catch (error) {
+    console.error("Error Uploading The Image", error);
+    throw error;
+  }
+};
