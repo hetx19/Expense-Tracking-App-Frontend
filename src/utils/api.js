@@ -6,6 +6,7 @@ export const API_ENDPOINT = {
     SIGNUP: "/api/auth/signup",
     GET_USER: "/api/auth/getUser",
     UPDATE_USER: "/api/auth/updateUser",
+    DELETE_USER: "/api/auth/deleteUser",
   },
   DASHBOARD: {
     GET_DASHBOARD_DATA: "/api/dashboard",

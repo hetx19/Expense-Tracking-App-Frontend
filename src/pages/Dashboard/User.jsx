@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 // Hooks
 import { Authhooks } from "../../hooks/Authhooks";
@@ -11,14 +12,16 @@ import { validateEmail } from "../../utils/helper";
 import { updateImage } from "../../utils/uploadImage";
 
 // Components
+import Modal from "../../components/Modal";
 import Input from "../../components/Inputs/Input";
+import DeleteAlert from "../../components/DeleteAlert";
 import DashboardLayout from "../../components/layout/Dashboard";
 import UpdateProfilePhotoSelector from "../../components/Inputs/UpdateProfilePhotoSelector";
 
 // Context
 import { UserContext } from "../../context/userContext";
 
-const User = () => {
+const User = ({ loading, setLoading, setProgress }) => {
   Authhooks();
 
   const { user, updateUser } = useContext(UserContext);
@@ -31,21 +34,29 @@ const User = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
+  const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setProgress(0);
 
     if (email && !validateEmail(email)) {
+      setProgress(100);
+      setLoading(false);
       return setError("Please enter a valid email address");
     }
 
     if ((password || confirmPassword) && password !== confirmPassword) {
+      setProgress(100);
+      setLoading(false);
       return setError("Passwords do not match");
     }
 
     setError(null);
 
     let profileImageUrl = user?.profileImageUrl || "";
+    setProgress(30);
 
     try {
       if (profilePic && profilePic !== user?.profileImageUrl) {
@@ -61,22 +72,30 @@ const User = () => {
         payload.profileImageUrl = profileImageUrl;
       }
 
+      setProgress(50);
       const response = await axiosInst.put(
         API_ENDPOINT.AUTH.UPDATE_USER,
         payload
       );
       const { token, user: updatedUser } = response.data;
+      setProgress(80);
 
       if (token) {
         localStorage.setItem("token", token);
         updateUser(updatedUser);
+        setProgress(100);
+        setLoading(false);
         navigate("/dashboard");
+        toast.success("User details updated successfully.");
       }
     } catch (error) {
-      console.log("Update error:", error.response?.data || error.message);
       if (error.response?.data?.message) {
+        setProgress(100);
+        setLoading(false);
         setError(error.response.data.message);
       } else {
+        setProgress(100);
+        setLoading(false);
         setError("Something Went Wrong, Try Again");
       }
     }
@@ -84,7 +103,31 @@ const User = () => {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    console.log("Delete Account Clicked");
+    setLoading(true);
+    setProgress(0);
+
+    try {
+      setProgress(30);
+      await axiosInst.delete(API_ENDPOINT.AUTH.DELETE_USER);
+      setProgress(60);
+
+      localStorage.removeItem("token");
+      updateUser(null);
+      setProgress(100);
+      setLoading(false);
+      navigate("/signin");
+      toast.success("User deleted successfully.");
+    } catch (error) {
+      if (error.response?.data?.message) {
+        setProgress(100);
+        setLoading(false);
+        setError(error.response.data.message);
+      } else {
+        setProgress(100);
+        setLoading(false);
+        setError("Something Went Wrong, Try Again");
+      }
+    }
   };
 
   return (
@@ -136,15 +179,30 @@ const User = () => {
             {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
             <div className="flex gap-2">
-              <button type="submit" className="btn-primary">
+              <button disabled={loading} type="submit" className="btn-primary">
                 Update Details
               </button>
-              <button onClick={handleDelete} className="btn-secondary">
+              <button
+                disabled={loading}
+                type="button"
+                onClick={() => setOpenDeleteAlert(true)}
+                className="btn-secondary"
+              >
                 Delete Account
               </button>
             </div>
           </form>
         </div>
+        <Modal
+          isOpen={openDeleteAlert}
+          onClose={() => setOpenDeleteAlert(false)}
+          title="Delete Account"
+        >
+          <DeleteAlert
+            content="Are you sure you want to delete this account details?"
+            onDelete={handleDelete}
+          />
+        </Modal>
       </div>
     </DashboardLayout>
   );

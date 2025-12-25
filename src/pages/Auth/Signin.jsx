@@ -13,7 +13,7 @@ import { validateEmail } from "../../utils/helper";
 // Context
 import { UserContext } from "../../context/userContext";
 
-const SignIn = () => {
+const SignIn = ({ loading, setProgress, setLoading }) => {
   const [email, setEmail] = useState("");
   const [password, setpassword] = useState("");
   const [error, setError] = useState(null);
@@ -23,18 +23,25 @@ const SignIn = () => {
 
   const handleSignin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setProgress(0);
 
     if (!validateEmail(email)) {
+      setProgress(100);
+      setLoading(false);
       setError("Please enter a valid email address");
       return;
     }
 
     if (!password) {
+      setProgress(100);
+      setLoading(false);
       setError("Please enter the password");
       return;
     }
 
     setError("");
+    setProgress(30);
 
     try {
       const response = await axiosInst.post(API_ENDPOINT.AUTH.SIGNIN, {
@@ -42,17 +49,25 @@ const SignIn = () => {
         password,
       });
 
+      setProgress(50);
       const { token, user } = response.data;
+      setProgress(80);
 
       if (token) {
         localStorage.setItem("token", token);
         updateUser(user);
+        setProgress(100);
+        setLoading(false);
         navigate("/dashboard");
       }
     } catch (error) {
       if (error.response && error.response.data.message) {
+        setProgress(100);
+        setLoading(false);
         setError(error.response.data.message);
       } else {
+        setProgress(100);
+        setLoading(false);
         setError("Something Went Wrong, Try Again");
       }
     }
@@ -84,7 +99,7 @@ const SignIn = () => {
 
           {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-          <button type="submit" className="btn-primary">
+          <button disabled={loading} type="submit" className="btn-primary">
             Sign In
           </button>
 

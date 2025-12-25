@@ -15,7 +15,7 @@ import { uploadImage } from "../../utils/uploadImage";
 // Context
 import { UserContext } from "../../context/userContext";
 
-const Signup = () => {
+const Signup = ({ loading, setLoading, setProgress }) => {
   const [profilePic, setProfilePic] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,30 +28,41 @@ const Signup = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setProgress(0);
 
     let profileImageUrl = "";
 
     if (!name) {
+      setProgress(100);
+      setLoading(false);
       setError("Please enter your name");
       return;
     }
 
     if (!validateEmail(email)) {
+      setProgress(100);
+      setLoading(false);
       setError("Please enter a valid email address");
       return;
     }
 
     if (!password) {
+      setProgress(100);
+      setLoading(false);
       setError("Please enter the password");
       return;
     }
 
     if (!confirmPassword || confirmPassword != password) {
+      setProgress(100);
+      setLoading(false);
       setError("Please verify the password");
       return;
     }
 
     setError("");
+    setProgress(30);
 
     try {
       if (profilePic) {
@@ -66,17 +77,25 @@ const Signup = () => {
         profileImageUrl,
       });
 
+      setProgress(50);
       const { token, user } = response.data;
+      setProgress(80);
 
       if (token) {
         localStorage.setItem("token", token);
         updateUser(user);
+        setProgress(100);
+        setLoading(false);
         navigate("/dashboard");
       }
     } catch (error) {
       if (error.response && error.response.data.message) {
+        setProgress(100);
+        setLoading(false);
         setError(error.response.data.message);
       } else {
+        setProgress(100);
+        setLoading(false);
         setError("Something Went Wrong, Try Again");
       }
     }
@@ -127,7 +146,7 @@ const Signup = () => {
 
           {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-          <button type="submit" className="btn-primary">
+          <button disabled={loading} type="submit" className="btn-primary">
             Sign Up
           </button>
 
